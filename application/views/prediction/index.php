@@ -70,14 +70,15 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($rows as $i => $r): ?>
-                                        <tr>
-                                            <td><?php echo $r['x_period']; ?></td>
-                                            <td><?php echo sprintf('%04d-%02d', $r['year'], $r['month']); ?></td>
-                                            <td><?php echo (int)$r['y_total']; ?></td>
-                                            <td><?php echo round($fit['yhat'][$i], 2); ?></td>
+                                    <?php // Historical rows removed as per request ?>
+                                    <?php if (!empty($target)): ?>
+                                        <tr style="background-color: #e8f5e9; font-weight: bold;">
+                                            <td><?php echo $target['x']; ?></td>
+                                            <td><?php echo $target['month']; ?></td>
+                                            <td>-</td>
+                                            <td><?php echo number_format($target['y_pred'], 2); ?></td>
                                         </tr>
-                                    <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
