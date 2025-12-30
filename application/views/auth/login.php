@@ -346,7 +346,7 @@
                     <p>Kelola data pengunjung dan anggota perpustakaan dengan mudah, cepat, dan efisien.</p>
                 </div>
                 <ul class="auth-highlights">
-                    <li><span>01</span> Pantau tren kunjungan mingguan</li>
+                    <li><span>01</span> Pantau tren kunjungan bulanan</li>
                     <li><span>02</span> Rekap buku tamu lebih cepat</li>
                     <li><span>03</span> Laporan siap unduh setiap saat</li>
                 </ul>
