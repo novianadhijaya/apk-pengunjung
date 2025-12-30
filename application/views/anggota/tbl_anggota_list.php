@@ -46,8 +46,7 @@
                                         <th>Kode Anggota</th>
                                         <th>Nama Anggota</th>
                                         <th>Institusi</th>
-                                        <th>No Telp</th>
-                                        <th>Alamat</th>
+
                                         <th width="200px" class="text-center">Action</th>
                                     </tr>
                                 </thead>
@@ -58,8 +57,7 @@
                                             <td><?php echo $anggota->kode_anggota ?></td>
                                             <td><?php echo $anggota->nama_anggota ?></td>
                                             <td><?php echo $anggota->institusi ?></td>
-                                            <td><?php echo $anggota->no_telp ?></td>
-                                            <td><?php echo $anggota->alamat ?></td>
+
                                             <td class="text-center" width="200px">
                                                 <?php
                                                 echo anchor(site_url('anggota/read/' . $anggota->id_anggota), '<i class="fa fa-eye"></i>', 'class="btn btn-info btn-xs"');

@@ -39,7 +39,7 @@ class BukuTamu extends CI_Controller
             $member = $this->Anggota_model->get_by_kode($member_id);
 
             if ($member) {
-                $membership_type = 'Anggota';
+                $membership_type = 'Member';
                 // Autofill data from member table, overriding input if necessary
                 $visitor_name = $member->nama_anggota;
                 $institution = $member->institusi;
@@ -50,13 +50,18 @@ class BukuTamu extends CI_Controller
             }
         }
 
+        // Logic Custom Room
+        $room_custom = $this->input->post('room_name_custom');
+        $room_select = $this->input->post('room_name');
+        $final_room = !empty($room_custom) ? $room_custom : $room_select;
+
         // Prepare data
         $data = array(
             'visitor_name' => $visitor_name,
             'institution' => $institution,
             'member_id' => $member_id,
             'membership_type' => $membership_type,
-            'room_name' => $this->input->post('room_name'),
+            'room_name' => $final_room,
             'visit_date' => date('Y-m-d'),
             'visit_time' => date('H:i:s'),
             'created_at' => date('Y-m-d H:i:s')

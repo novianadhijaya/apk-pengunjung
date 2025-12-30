@@ -49,15 +49,16 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $no = 1; foreach ($rows as $row): ?>
+                                <?php $no = 1;
+                                foreach ($rows as $row): ?>
                                     <tr>
                                         <td><?php echo $no++; ?></td>
                                         <td><?php echo tgl_indo($row->visit_date); ?></td>
                                         <td><?php echo $row->visit_time; ?></td>
-                                        <td><?php echo $row->visitor_name; ?></td>
-                                        <td><?php echo $row->institution; ?></td>
-                                        <td><?php echo $row->membership_type; ?></td>
-                                        <td><?php echo $row->room_name; ?></td>
+                                        <td><?php echo htmlspecialchars($row->visitor_name, ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td><?php echo htmlspecialchars($row->institution, ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td><?php echo htmlspecialchars($row->membership_type, ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td><?php echo htmlspecialchars($row->room_name, ENT_QUOTES, 'UTF-8'); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

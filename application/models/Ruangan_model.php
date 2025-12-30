@@ -8,7 +8,7 @@ class Ruangan_model extends CI_Model
 
     public $table = 'tbl_ruangan';
     public $id = 'id_ruangan';
-    public $order = 'DESC';
+    public $order = 'ASC';
 
     function __construct()
     {

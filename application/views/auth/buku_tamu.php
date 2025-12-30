@@ -390,7 +390,7 @@
                 <div class="form-group">
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fa fa-map-marker"></i></span>
-                        <select class="form-control" name="room_name" required>
+                        <select class="form-control" name="room_name">
                             <option value="">-- Pilih Tujuan / Ruangan --</option>
                             <?php if (isset($ruangan_list)): ?>
                                 <?php foreach ($ruangan_list as $r): ?>
@@ -398,6 +398,9 @@
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
+                    </div>
+                    <div style="margin-top: 10px;">
+                         <input type="text" class="form-control" name="room_name_custom" placeholder="Atau ketik Tujuan / Ruangan lainnya (Opsional)">
                     </div>
                 </div>
                 <button type="submit" class="btn btn-success btn-block btn-lg"><i class="fa fa-check-circle"></i> Check

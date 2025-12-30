@@ -20,15 +20,16 @@ class Anggota extends CI_Controller
         $start = intval($this->input->get('start'));
 
         if ($q <> '') {
-            $config['base_url'] = base_url() . 'anggota/index.html?q=' . urlencode($q);
-            $config['first_url'] = base_url() . 'anggota/index.html?q=' . urlencode($q);
+            $config['base_url'] = site_url('anggota/index?q=' . urlencode($q));
+            $config['first_url'] = site_url('anggota/index?q=' . urlencode($q));
         } else {
-            $config['base_url'] = base_url() . 'anggota/index.html';
-            $config['first_url'] = base_url() . 'anggota/index.html';
+            $config['base_url'] = site_url('anggota/index');
+            $config['first_url'] = site_url('anggota/index');
         }
 
         $config['per_page'] = 10;
         $config['page_query_string'] = TRUE;
+        $config['query_string_segment'] = 'start';
         $config['total_rows'] = $this->Anggota_model->total_rows($q);
         $anggota = $this->Anggota_model->get_limit_data($config['per_page'], $start, $q);
         $config['full_tag_open'] = '<ul class="pagination pagination-sm no-margin pull-right">';
@@ -54,8 +55,6 @@ class Anggota extends CI_Controller
                 'kode_anggota' => $row->kode_anggota,
                 'nama_anggota' => $row->nama_anggota,
                 'institusi' => $row->institusi,
-                'no_telp' => $row->no_telp,
-                'alamat' => $row->alamat,
             );
             $this->template->load('template', 'anggota/tbl_anggota_read', $data);
         } else {
@@ -73,8 +72,6 @@ class Anggota extends CI_Controller
             'kode_anggota' => set_value('kode_anggota'),
             'nama_anggota' => set_value('nama_anggota'),
             'institusi' => set_value('institusi'),
-            'no_telp' => set_value('no_telp'),
-            'alamat' => set_value('alamat'),
         );
         $this->template->load('template', 'anggota/tbl_anggota_form', $data);
     }
@@ -90,8 +87,6 @@ class Anggota extends CI_Controller
                 'kode_anggota' => $this->input->post('kode_anggota', TRUE),
                 'nama_anggota' => $this->input->post('nama_anggota', TRUE),
                 'institusi' => $this->input->post('institusi', TRUE),
-                'no_telp' => $this->input->post('no_telp', TRUE),
-                'alamat' => $this->input->post('alamat', TRUE),
             );
 
             $this->Anggota_model->insert($data);
@@ -112,8 +107,6 @@ class Anggota extends CI_Controller
                 'kode_anggota' => set_value('kode_anggota', $row->kode_anggota),
                 'nama_anggota' => set_value('nama_anggota', $row->nama_anggota),
                 'institusi' => set_value('institusi', $row->institusi),
-                'no_telp' => set_value('no_telp', $row->no_telp),
-                'alamat' => set_value('alamat', $row->alamat),
             );
             $this->template->load('template', 'anggota/tbl_anggota_form', $data);
         } else {
@@ -133,8 +126,6 @@ class Anggota extends CI_Controller
                 'kode_anggota' => $this->input->post('kode_anggota', TRUE),
                 'nama_anggota' => $this->input->post('nama_anggota', TRUE),
                 'institusi' => $this->input->post('institusi', TRUE),
-                'no_telp' => $this->input->post('no_telp', TRUE),
-                'alamat' => $this->input->post('alamat', TRUE),
             );
 
             $this->Anggota_model->update($this->input->post('id_anggota', TRUE), $data);

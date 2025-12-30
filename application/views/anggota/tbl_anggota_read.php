@@ -18,14 +18,7 @@
                         <td>Institusi</td>
                         <td><?php echo $institusi; ?></td>
                     </tr>
-                    <tr>
-                        <td>No Telp</td>
-                        <td><?php echo $no_telp; ?></td>
-                    </tr>
-                    <tr>
-                        <td>Alamat</td>
-                        <td><?php echo $alamat; ?></td>
-                    </tr>
+
                     <tr>
                         <td></td>
                         <td><a href="<?php echo site_url('anggota') ?>" class="btn btn-default">Kembali</a></td>
