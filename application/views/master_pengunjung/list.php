@@ -71,7 +71,7 @@
                                             <td><?php echo $visit->institution ?></td>
                                             <td>
                                                 <span
-                                                    class="label <?php echo $visit->membership_type == 'Anggota' ? 'label-success' : ($visit->membership_type == 'Umum' ? 'label-primary' : 'label-default'); ?>">
+                                                    class="label <?php echo $visit->membership_type == 'Member' ? 'label-success' : ($visit->membership_type == 'Umum' ? 'label-primary' : 'label-default'); ?>">
                                                     <?php echo $visit->membership_type ?>
                                                 </span>
                                             </td>

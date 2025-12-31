@@ -27,9 +27,9 @@ class Preprocess extends CI_Controller
         $x = 1;
         foreach ($raw as $r) {
             $rows[] = [
-                'year' => (int)$r['y'],
-                'month' => (int)$r['m'],
-                'y_total' => (int)$r['total'],
+                'year' => (int) $r['y'],
+                'month' => (int) $r['m'],
+                'y_total' => (int) $r['total'],
                 'x_period' => $x,
             ];
             $x++;

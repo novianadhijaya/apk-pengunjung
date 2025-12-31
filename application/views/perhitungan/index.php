@@ -14,6 +14,98 @@
                         Data preprocessing belum ada atau kurang dari 2 bulan. Jalankan preprocessing dulu.
                     </div>
                 <?php else: ?>
+                    <div class="box box-default">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Filter Periode Data</h3>
+                        </div>
+                        <div class="box-body">
+                            <form class="form-inline" method="get" action="<?php echo site_url('perhitungan'); ?>">
+                                <div class="form-group" style="margin-right: 15px;">
+                                    <label>Dari Periode:</label>
+                                    <select name="start_month" class="form-control input-sm">
+                                        <?php
+                                        $months = [
+                                            1 => 'Jan',
+                                            2 => 'Feb',
+                                            3 => 'Mar',
+                                            4 => 'Apr',
+                                            5 => 'Mei',
+                                            6 => 'Jun',
+                                            7 => 'Jul',
+                                            8 => 'Agu',
+                                            9 => 'Sep',
+                                            10 => 'Okt',
+                                            11 => 'Nov',
+                                            12 => 'Des'
+                                        ];
+                                        foreach ($months as $num => $name) {
+                                            $selected = ($start_month == $num) ? 'selected' : '';
+                                            echo "<option value='$num' $selected>$name</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                    <select name="start_year" class="form-control input-sm">
+                                        <?php
+                                        $current_year = date('Y');
+                                        for ($y = 2018; $y <= $current_year + 5; $y++) {
+                                            $selected = ($start_year == $y) ? 'selected' : '';
+                                            echo "<option value='$y' $selected>$y</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+
+                                <div class="form-group" style="margin-right: 15px;">
+                                    <label>Sampai Periode:</label>
+                                    <select name="end_month" class="form-control input-sm">
+                                        <?php foreach ($months as $num => $name) {
+                                            $selected = ($end_month == $num) ? 'selected' : '';
+                                            echo "<option value='$num' $selected>$name</option>";
+                                        } ?>
+                                    </select>
+                                    <select name="end_year" class="form-control input-sm">
+                                        <?php
+                                        for ($y = 2018; $y <= $current_year + 5; $y++) {
+                                            $selected = ($end_year == $y) ? 'selected' : '';
+                                            echo "<option value='$y' $selected>$y</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fa fa-filter"></i> Terapkan
+                                </button>
+                                <a href="<?php echo site_url('perhitungan'); ?>" class="btn btn-default btn-sm"
+                                    title="Reset Filter"><i class="fa fa-refresh"></i></a>
+
+                                <div class="pull-right">
+                                    <button type="button" onclick="submitExportPdf()" class="btn btn-danger btn-sm"
+                                        title="Export PDF">
+                                        <i class="fa fa-file-pdf-o"></i> PDF
+                                    </button>
+                                    <!-- Excel still uses GET because no charts needed -->
+                                    <a href="<?php echo site_url('perhitungan/export_excel?start_month=' . $start_month . '&start_year=' . $start_year . '&end_month=' . $end_month . '&end_year=' . $end_year); ?>"
+                                        class="btn btn-success btn-sm" target="_blank" title="Export Excel">
+                                        <i class="fa fa-file-excel-o"></i> Excel
+                                    </a>
+                                </div>
+                            </form>
+
+                            <!-- Hidden Form for PDF Export (Moved outside to avoid nesting) -->
+                            <form id="formExportPdf" method="post"
+                                action="<?php echo site_url('perhitungan/export_pdf'); ?>" target="_blank"
+                                style="display:none;">
+                                <input type="hidden" name="start_month" value="<?php echo $start_month; ?>">
+                                <input type="hidden" name="start_year" value="<?php echo $start_year; ?>">
+                                <input type="hidden" name="end_month" value="<?php echo $end_month; ?>">
+                                <input type="hidden" name="end_year" value="<?php echo $end_year; ?>">
+                                <input type="hidden" name="img_actual" id="inputImgActual">
+                                <input type="hidden" name="img_pred" id="inputImgPred">
+                                <input type="hidden" name="img_compare" id="inputImgCompare">
+                            </form>
+                        </div>
+                    </div>
                     <div class="box box-warning">
                         <div class="box-header with-border">
                             <h3 class="box-title">Grafik dan Visualisasi</h3>
@@ -67,6 +159,16 @@
                                             <td><?php echo round($fit['yhat'][$i], 2); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
+                                    <?php if (isset($next_month_pred) && isset($next_month_pred['x'])): ?>
+                                        <tr class="success" style="font-weight:bold; border-top: 2px solid #00a65a;">
+                                            <td><?php echo $next_month_pred['x']; ?></td>
+                                            <td><?php echo $next_month_pred['label']; ?> (Bulan Depan)</td>
+                                            <td>-</td>
+                                            <td>
+                                                <b><?php echo number_format($next_month_pred['val'], 2); ?></b>
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -82,6 +184,14 @@
                             <p><b>ΣX²</b> = <?php echo $fit['sum_x2']; ?></p>
                             <p><b>ΣXY</b> = <?php echo $fit['sum_xy']; ?></p>
                             <hr>
+                            <?php if (isset($next_month_pred)): ?>
+                                <div class="alert alert-info">
+                                    <h4><i class="icon fa fa-bar-chart"></i> Prediksi Bulan Depan
+                                        (<?php echo $next_month_pred['label']; ?>)</h4>
+                                    Angka Prediksi: <b><?php echo number_format($next_month_pred['val'], 2); ?></b>
+                                </div>
+                                <hr>
+                            <?php endif; ?>
                             <p><b>a</b> = <?php echo round($fit['a'], 6); ?></p>
                             <p><b>b</b> = <?php echo round($fit['b'], 6); ?></p>
                             <p><b>Rumus Regresi:</b> Yhat = a + bX</p>
@@ -232,8 +342,23 @@
             options: {
                 maintainAspectRatio: false,
                 responsive: true,
-                scales: { yAxes: [{ ticks: { beginAtZero: true } }] }
+                scales: { yAxes: [{ ticks: { beginAtZero: true } }] },
+                animation: {
+                    onComplete: function () {
+                        // Animation complete, charts are ready to be captured
+                    }
+                }
             }
         });
+
+        function submitExportPdf() {
+            // Capture chart images using standard Canvas API
+            document.getElementById('inputImgActual').value = document.getElementById('chartActual').toDataURL('image/png');
+            document.getElementById('inputImgPred').value = document.getElementById('chartPred').toDataURL('image/png');
+            document.getElementById('inputImgCompare').value = document.getElementById('chartCompare').toDataURL('image/png');
+
+            // Submit form
+            document.getElementById('formExportPdf').submit();
+        }
     </script>
 <?php endif; ?>

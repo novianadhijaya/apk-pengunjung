@@ -14,14 +14,34 @@ class Prediction extends CI_Controller
 
     public function index()
     {
-        $rows = $this->Monthly_model->get_all_ordered();
+        // Default: Start = Jan Current Year, End = Dec Current Year
+        // mirroring Laporan defaults
+        $cur_y = date('Y');
+
+        $start_month = $this->input->get('start_month', TRUE) ?: 1;
+        $start_year = $this->input->get('start_year', TRUE) ?: $cur_y;
+        $end_month = $this->input->get('end_month', TRUE) ?: 12;
+        $end_year = $this->input->get('end_year', TRUE) ?: $cur_y;
+
+        // Use filtered data for regression model building
+        $rows = $this->Monthly_model->get_filtered(
+            (int) $start_year,
+            (int) $start_month,
+            (int) $end_year,
+            (int) $end_month
+        );
+
         $data = [
             'rows' => $rows,
             'fit' => null,
-            'target' => null,
+            'targets' => [],
             'notice' => null,
-            'target_month' => null,
+            'start_month' => $start_month,
+            'start_year' => $start_year,
+            'end_month' => $end_month,
+            'end_year' => $end_year,
         ];
+
 
         if (count($rows) >= 2) {
             $x = array_column($rows, 'x_period');
@@ -30,40 +50,74 @@ class Prediction extends CI_Controller
             $data['fit'] = $fit;
 
             $last = $rows[count($rows) - 1];
-            $last_year = (int)$last['year'];
-            $last_month = (int)$last['month'];
-            $last_x = (int)$last['x_period'];
+            $last_year = (int) $last['year'];
+            $last_month = (int) $last['month'];
+            $last_x = (int) $last['x_period'];
+            $last_index = ($last_year * 12) + $last_month;
 
-            $target_month = $this->input->get('month', TRUE);
-            if (empty($target_month)) {
-                $default = sprintf('%04d-%02d-01', $last_year, $last_month);
-                $target_month = date('Y-m', strtotime($default . ' +1 month'));
-            }
+            // Generate range
+            $start_date = sprintf('%04d-%02d-01', $start_year, $start_month);
+            $end_date = sprintf('%04d-%02d-01', $end_year, $end_month);
 
-            if (!preg_match('/^\\d{4}-\\d{2}$/', $target_month)) {
-                $data['notice'] = 'Format bulan tidak valid. Gunakan format YYYY-MM.';
+            if ($start_date > $end_date) {
+                $data['notice'] = 'Periode Awal tidak boleh lebih besar dari Periode Akhir.';
             } else {
-                list($target_year, $target_mo) = explode('-', $target_month);
-                $target_year = (int)$target_year;
-                $target_mo = (int)$target_mo;
+                $current = $start_date;
+                while ($current <= $end_date) {
+                    $curr_time = strtotime($current);
+                    $m = (int) date('n', $curr_time);
+                    $y_val = (int) date('Y', $curr_time);
+                    $target_month_str = date('Y-m', $curr_time);
 
-                $last_index = ($last_year * 12) + $last_month;
-                $target_index = ($target_year * 12) + $target_mo;
-                $delta = $target_index - $last_index;
+                    // Calculate X
+                    $target_index = ($y_val * 12) + $m;
+                    $delta = $target_index - $last_index;
+                    $target_x = $last_x + $delta;
 
-                $target_x = $last_x + $delta;
-                if ($target_x < 1) {
-                    $data['notice'] = 'Bulan target lebih awal dari data pertama. Prediksi tidak dihitung.';
-                } else {
-                    $data['target'] = [
-                        'month' => $target_month,
-                        'x' => $target_x,
-                        'y_pred' => $this->reg->predict($fit['a'], $fit['b'], $target_x),
+                    if ($target_x < 1) {
+                        // Advance to next month
+                        $current = date('Y-m-d', strtotime('+1 month', $curr_time));
+                        continue;
+                    }
+
+                    // Check historical
+                    $found_historical = null;
+                    foreach ($rows as $row) {
+                        if ((int) $row['year'] == $y_val && (int) $row['month'] == $m) {
+                            $found_historical = $row;
+                            break;
+                        }
+                    }
+
+                    $y_actual = $found_historical ? $found_historical['y_total'] : null;
+                    $final_x = $found_historical ? $found_historical['x_period'] : $target_x;
+
+                    $data['targets'][] = [
+                        'month_label' => $target_month_str,
+                        'x' => $final_x,
+                        'y_actual' => $y_actual,
+                        'y_pred' => $this->reg->predict($fit['a'], $fit['b'], $final_x),
                     ];
+
+                    // Advance to next month
+                    $current = date('Y-m-d', strtotime('+1 month', $curr_time));
                 }
             }
 
-            $data['target_month'] = $target_month;
+            // Explicitly calculate "Next Month" relative to the last data point for the top banner
+            $last_row = $rows[count($rows) - 1];
+            $last_x_val = (int) $last_row['x_period'];
+            $last_date_str = sprintf('%04d-%02d-01', $last_row['year'], $last_row['month']);
+
+            $next_target_x = $last_x_val + 1;
+            $next_pred_val = $this->reg->predict($fit['a'], $fit['b'], $next_target_x);
+            $next_month_label = date('M Y', strtotime($last_date_str . ' +1 month'));
+
+            $data['next_month_pred'] = [
+                'val' => $next_pred_val,
+                'label' => $next_month_label,
+                'x' => $next_target_x
+            ];
         }
 
         $this->template->load('template', 'prediction/index', $data);

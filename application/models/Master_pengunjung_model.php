@@ -74,6 +74,17 @@ class Master_pengunjung_model extends CI_Model
         return $this->db->get($this->table)->result();
     }
 
+    // get all for export with date range
+    function get_all_filter_range($start_date, $end_date)
+    {
+        $this->db->order_by($this->id, $this->order);
+        if ($start_date && $end_date) {
+            $this->db->where('visit_date >=', $start_date . '-01');
+            $this->db->where('visit_date <=', date('Y-m-t', strtotime($end_date . '-01')));
+        }
+        return $this->db->get($this->table)->result();
+    }
+
     // insert data
     function insert($data)
     {

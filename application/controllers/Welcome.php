@@ -22,7 +22,7 @@ class Welcome extends CI_Controller
 
         $data = array(
             'total_visits' => $this->Dashboard_model->get_total_visits(),
-            'avg_visits' => $this->Dashboard_model->get_average_visits(),
+            'today_visits' => $this->Dashboard_model->get_today_visits(),
             'monthly_stats' => $this->Dashboard_model->get_visits_last_12_months(),
             'prediction_next_month' => $this->Dashboard_model->predict_next_month(),
             'recent_visits' => $this->Dashboard_model->get_recent_visits(),

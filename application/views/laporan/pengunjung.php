@@ -11,26 +11,77 @@
             <div class="col-xs-12">
                 <div class="box box-primary">
                     <div class="box-header with-border">
+                        <h3 class="box-title">Filter Periode Data</h3>
+                    </div>
+                    <div class="box-body">
                         <form class="form-inline" method="get" action="<?php echo site_url('laporan/pengunjung'); ?>">
-                            <div class="form-group">
-                                <label for="month">Filter Bulan</label>
-                                <input type="month" id="month" name="month" class="form-control"
-                                    value="<?php echo $month; ?>">
+                            <div class="form-group" style="margin-right: 15px;">
+                                <label>Dari Periode:</label>
+                                <select name="start_month" class="form-control input-sm">
+                                    <?php
+                                    $months = [
+                                        1 => 'Jan',
+                                        2 => 'Feb',
+                                        3 => 'Mar',
+                                        4 => 'Apr',
+                                        5 => 'Mei',
+                                        6 => 'Jun',
+                                        7 => 'Jul',
+                                        8 => 'Agu',
+                                        9 => 'Sep',
+                                        10 => 'Okt',
+                                        11 => 'Nov',
+                                        12 => 'Des'
+                                    ];
+                                    foreach ($months as $num => $name) {
+                                        $selected = ($start_month == $num) ? 'selected' : '';
+                                        echo "<option value='$num' $selected>$name</option>";
+                                    }
+                                    ?>
+                                </select>
+                                <select name="start_year" class="form-control input-sm">
+                                    <?php
+                                    $current_year = date('Y');
+                                    for ($y = 2018; $y <= $current_year + 5; $y++) {
+                                        $selected = ($start_year == $y) ? 'selected' : '';
+                                        echo "<option value='$y' $selected>$y</option>";
+                                    }
+                                    ?>
+                                </select>
                             </div>
+
+                            <div class="form-group" style="margin-right: 15px;">
+                                <label>Sampai Periode:</label>
+                                <select name="end_month" class="form-control input-sm">
+                                    <?php foreach ($months as $num => $name) {
+                                        $selected = ($end_month == $num) ? 'selected' : '';
+                                        echo "<option value='$num' $selected>$name</option>";
+                                    } ?>
+                                </select>
+                                <select name="end_year" class="form-control input-sm">
+                                    <?php
+                                    for ($y = 2018; $y <= $current_year + 5; $y++) {
+                                        $selected = ($end_year == $y) ? 'selected' : '';
+                                        echo "<option value='$y' $selected>$y</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+
                             <button type="submit" class="btn btn-primary btn-sm">
-                                <i class="fa fa-filter"></i> Filter
+                                <i class="fa fa-filter"></i> Terapkan
                             </button>
-                            <a href="<?php echo site_url('laporan/pengunjung'); ?>" class="btn btn-default btn-sm">
-                                Reset
-                            </a>
+                            <a href="<?php echo site_url('laporan/pengunjung'); ?>" class="btn btn-default btn-sm"
+                                title="Reset Filter"><i class="fa fa-refresh"></i></a>
+
                             <div class="pull-right">
-                                <a href="<?php echo site_url('laporan/pengunjung_excel?month=' . $month); ?>"
-                                    class="btn btn-success btn-sm">
-                                    <i class="fa fa-file-excel-o"></i> Excel
-                                </a>
-                                <a href="<?php echo site_url('laporan/pengunjung_pdf?month=' . $month); ?>"
-                                    class="btn btn-danger btn-sm">
+                                <a href="<?php echo site_url('laporan/pengunjung_pdf?start_month=' . $start_month . '&start_year=' . $start_year . '&end_month=' . $end_month . '&end_year=' . $end_year); ?>"
+                                    class="btn btn-danger btn-sm" target="_blank" title="Export PDF">
                                     <i class="fa fa-file-pdf-o"></i> PDF
+                                </a>
+                                <a href="<?php echo site_url('laporan/pengunjung_excel?start_month=' . $start_month . '&start_year=' . $start_year . '&end_month=' . $end_month . '&end_year=' . $end_year); ?>"
+                                    class="btn btn-success btn-sm" target="_blank" title="Export Excel">
+                                    <i class="fa fa-file-excel-o"></i> Excel
                                 </a>
                             </div>
                         </form>

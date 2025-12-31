@@ -12,7 +12,12 @@ class Dashboard_model extends CI_Model
 
     public function get_total_visits(): int
     {
-        return (int)$this->db->count_all('visits');
+        return (int) $this->db->count_all('visits');
+    }
+
+    public function get_today_visits(): int
+    {
+        return $this->db->where('visit_date', date('Y-m-d'))->count_all_results('visits');
     }
 
     public function get_average_visits(): float
@@ -27,8 +32,8 @@ class Dashboard_model extends CI_Model
 
         $min = strtotime($row->min_date);
         $max = strtotime($row->max_date);
-        $days = max(1, (int)floor(($max - $min) / 86400) + 1);
-        $avg = ((int)$row->total) / $days;
+        $days = max(1, (int) floor(($max - $min) / 86400) + 1);
+        $avg = ((int) $row->total) / $days;
         return round($avg, 1);
     }
 
@@ -44,7 +49,7 @@ class Dashboard_model extends CI_Model
         $map = [];
         foreach ($stats as $row) {
             $key = sprintf('%04d-%02d', $row->y, $row->m);
-            $map[$key] = (int)$row->total;
+            $map[$key] = (int) $row->total;
         }
 
         $result = [];
@@ -53,7 +58,7 @@ class Dashboard_model extends CI_Model
             $dt = clone $current;
             $dt->modify('-' . $i . ' months');
             $key = $dt->format('Y-m');
-            $result[] = (object)[
+            $result[] = (object) [
                 'label' => $key,
                 'count' => $map[$key] ?? 0,
             ];
@@ -78,29 +83,41 @@ class Dashboard_model extends CI_Model
         return $this->db->query($sql)->result();
     }
 
-    public function predict_next_month(): float
+    public function predict_next_month(): array
     {
         try {
             if (!$this->db->table_exists('monthly_visits')) {
-                return 0;
+                return ['count' => 0, 'label' => '-'];
             }
 
-            $rows = $this->db->order_by('year', 'ASC')
+            $rows = $this->db->where('year', date('Y'))
+                ->order_by('year', 'ASC')
                 ->order_by('month', 'ASC')
                 ->get('monthly_visits')
                 ->result_array();
 
             if (count($rows) < 2) {
-                return 0;
+                return ['count' => 0, 'label' => '-'];
             }
 
             $x = array_column($rows, 'x_period');
             $y = array_map('intval', array_column($rows, 'y_total'));
             $fit = $this->reg->fit($x, $y);
+
+            $last_row = $rows[count($rows) - 1];
+            $last_time = strtotime($last_row['year'] . '-' . $last_row['month'] . '-01');
+            $next_month_time = strtotime('+1 month', $last_time);
+            $label = date('M Y', $next_month_time);
+
             $target_x = max($x) + 1;
-            return $this->reg->predict($fit['a'], $fit['b'], $target_x);
+            $pred = $this->reg->predict($fit['a'], $fit['b'], $target_x);
+
+            return [
+                'count' => $pred,
+                'label' => $label
+            ];
         } catch (Exception $e) {
-            return 0;
+            return ['count' => 0, 'label' => '-'];
         }
     }
 }

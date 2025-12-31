@@ -13,7 +13,7 @@
                 <div class="info-box">
                     <span class="info-box-icon bg-aqua"><i class="ion ion-ios-people-outline"></i></span>
                     <div class="info-box-content">
-                        <span class="info-box-text">Total Pengunjung</span>
+                        <span class="info-box-text">Total Pengunjung Perpustakaan</span>
                         <span class="info-box-number"><?php echo number_format($total_visits); ?></span>
                     </div>
                 </div>
@@ -22,8 +22,8 @@
                 <div class="info-box">
                     <span class="info-box-icon bg-green"><i class="ion ion-ios-personadd-outline"></i></span>
                     <div class="info-box-content">
-                        <span class="info-box-text">Rata-rata / Hari</span>
-                        <span class="info-box-number"><?php echo $avg_visits; ?></span>
+                        <span class="info-box-text">Pengunjung Hari Ini</span>
+                        <span class="info-box-number"><?php echo number_format($today_visits); ?></span>
                     </div>
                 </div>
             </div>
@@ -41,12 +41,13 @@
                     <span class="info-box-icon bg-red"><i class="ion ion-arrow-graph-up-right"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Prediksi Bulan Depan</span>
-                        <?php if ($prediction_next_month > 0): ?>
-                            <span class="info-box-number"><?php echo number_format($prediction_next_month); ?></span>
-                            <small>Pengunjung</small>
+                        <?php if (is_array($prediction_next_month) && $prediction_next_month['count'] > 0): ?>
+                            <span
+                                class="info-box-number"><?php echo number_format($prediction_next_month['count']); ?></span>
+                            <small><?php echo $prediction_next_month['label']; ?></small>
                         <?php else: ?>
                             <span class="info-box-number">-</span>
-                            <small>Belum ada data preprocessing</small>
+                            <small>Belum ada model</small>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -103,7 +104,7 @@
                                         <a href="javascript:void(0)"
                                             class="product-title"><?php echo $visit->visitor_name; ?>
                                             <span
-                                                class="label label-<?php echo ($visit->membership_type == 'Anggota') ? 'success' : 'warning'; ?> pull-right"><?php echo $visit->membership_type; ?></span>
+                                                class="label label-<?php echo ($visit->membership_type == 'Member') ? 'success' : 'warning'; ?> pull-right"><?php echo $visit->membership_type; ?></span>
                                         </a>
                                         <span class="product-description">
                                             <?php echo $visit->visit_date . ' ' . $visit->visit_time; ?> |
@@ -167,7 +168,7 @@
             datasets: [{
                 data: [<?php foreach ($visitor_types as $type)
                     echo $type->count . ','; ?>],
-                backgroundColor: ['#00a65a', '#f39c12'], // Success (Anggota), Warning (Non-Anggota)
+                backgroundColor: ['#00a65a', '#f39c12'], // Success (Member), Warning (Non-Anggota)
             }]
         },
         options: {

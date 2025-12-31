@@ -11,78 +11,74 @@
             <div class="col-xs-12">
                 <div class="box box-default">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Filter Tahun</h3>
+                        <h3 class="box-title">Filter Periode Data</h3>
                     </div>
                     <div class="box-body">
                         <form class="form-inline" method="get" action="<?php echo site_url('testing'); ?>">
-                            <div class="form-group">
-                                <label for="filter_year">Pilih Tahun</label>
-                                <select class="form-control" name="filter_year" onchange="this.form.submit()">
-                                    <option value="">-- Semua Data --</option>
-                                    <?php foreach ($available_years as $yr): ?>
-                                        <option value="<?php echo $yr['year']; ?>" <?php echo ($filter_year == $yr['year']) ? 'selected' : ''; ?>>
-                                            <?php echo $yr['year']; ?>
-                                        </option>
-                                    <?php endforeach; ?>
+                            <div class="form-group" style="margin-right: 15px;">
+                                <label>Dari Periode:</label>
+                                <select name="start_month" class="form-control input-sm">
+                                    <?php
+                                    $months = [
+                                        1 => 'Jan',
+                                        2 => 'Feb',
+                                        3 => 'Mar',
+                                        4 => 'Apr',
+                                        5 => 'Mei',
+                                        6 => 'Jun',
+                                        7 => 'Jul',
+                                        8 => 'Agu',
+                                        9 => 'Sep',
+                                        10 => 'Okt',
+                                        11 => 'Nov',
+                                        12 => 'Des'
+                                    ];
+                                    foreach ($months as $num => $name) {
+                                        $selected = ($start_month == $num) ? 'selected' : '';
+                                        echo "<option value='$num' $selected>$name</option>";
+                                    }
+                                    ?>
+                                </select>
+                                <select name="start_year" class="form-control input-sm">
+                                    <?php
+                                    $current_year = date('Y');
+                                    for ($y = 2018; $y <= $current_year + 5; $y++) {
+                                        $selected = ($start_year == $y) ? 'selected' : '';
+                                        echo "<option value='$y' $selected>$y</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
-                            <?php if ($filter_year): ?>
-                                <a href="<?php echo site_url('testing'); ?>" class="btn btn-default">Reset</a>
-                            <?php endif; ?>
-                        </form>
-                    </div>
-                </div>
 
-                <div class="box box-success">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">Uji Bulan Tertentu</h3>
-                    </div>
-                    <div class="box-body">
-                        <form class="form-inline" method="get" action="<?php echo site_url('testing'); ?>">
-                            <div class="form-group">
-                                <label for="test_month">Pilih Bulan Uji</label>
-                                <input type="month" class="form-control" name="test_month"
-                                    value="<?php echo isset($test_month) ? $test_month : ''; ?>" required>
+                            <div class="form-group" style="margin-right: 15px;">
+                                <label>Sampai Periode:</label>
+                                <select name="end_month" class="form-control input-sm">
+                                    <?php foreach ($months as $num => $name) {
+                                        $selected = ($end_month == $num) ? 'selected' : '';
+                                        echo "<option value='$num' $selected>$name</option>";
+                                    } ?>
+                                </select>
+                                <select name="end_year" class="form-control input-sm">
+                                    <?php
+                                    for ($y = 2018; $y <= $current_year + 5; $y++) {
+                                        $selected = ($end_year == $y) ? 'selected' : '';
+                                        echo "<option value='$y' $selected>$y</option>";
+                                    }
+                                    ?>
+                                </select>
                             </div>
-                            <button type="submit" class="btn btn-success"><i class="fa fa-flask"></i> Uji</button>
-                        </form>
 
-                        <?php if (isset($single_test) && $single_test): ?>
-                            <hr>
-                            <h4>Hasil Uji: <?php echo $single_test['month']; ?></h4>
-                            <table class="table table-bordered">
-                                <tr>
-                                    <th>Data Latih</th>
-                                    <td><?php echo $single_test['train_count']; ?> bulan sebelumnya</td>
-                                </tr>
-                                <tr>
-                                    <th>Aktual (Y)</th>
-                                    <td><?php echo $single_test['actual'] !== null ? $single_test['actual'] : 'Data belum ada'; ?>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Prediksi (Yhat)</th>
-                                    <td><?php echo number_format($single_test['predicted'], 2); ?></td>
-                                </tr>
-                                <?php if ($single_test['actual'] !== null): ?>
-                                    <tr>
-                                        <th>Error (Selisih)</th>
-                                        <td><?php echo number_format($single_test['error'], 2); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>MAPE (Akurasi)</th>
-                                        <td
-                                            style="font-weight: bold; <?php echo ($single_test['mape'] > 50) ? 'color:red;' : 'color:green;'; ?>">
-                                            <?php echo number_format($single_test['mape'], 2); ?>%
-                                        </td>
-                                    </tr>
-                                <?php endif; ?>
-                            </table>
-                        <?php endif; ?>
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fa fa-filter"></i> Terapkan
+                            </button>
+                            <a href="<?php echo site_url('testing'); ?>" class="btn btn-default btn-sm">Reset</a>
+                        </form>
                     </div>
                 </div>
 
-                <?php if (!$fit && empty($single_test)): ?>
+
+
+                <?php if (!$fit): ?>
                     <div class="alert alert-warning">
                         Data preprocessing belum ada atau kurang dari 2 bulan. Jalankan preprocessing dulu.
                     </div>
@@ -143,6 +139,249 @@
                                     </table>
                                     <div class="text-muted small">
                                         R² = 1 - (SSE / SST)
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="box box-success">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Analisis Hasil (Kesimpulan)</h3>
+                        </div>
+                        <div class="box-body">
+                            <?php
+                            $mape = $eval['MAPE'];
+                            $kesimpulan = "";
+                            $class_badge = "";
+                            $deskripsi = "";
+
+                            if ($mape < 10) {
+                                $kesimpulan = "SANGAT BAIK (Highly Accurate)";
+                                $class_badge = "bg-green";
+                                $deskripsi = "Model memiliki tingkat error yang sangat kecil (< 10%). Sangat layak digunakan untuk prediksi masa depan.";
+                            } elseif ($mape < 20) {
+                                $kesimpulan = "BAIK (Good)";
+                                $class_badge = "bg-blue";
+                                $deskripsi = "Model memiliki akurasi yang baik (Error 10-20%). Layak digunakan dengan pengawasan.";
+                            } elseif ($mape < 50) {
+                                $kesimpulan = "CUKUP / WAJAR (Reasonable)";
+                                $class_badge = "bg-yellow";
+                                $deskripsi = "Model memiliki error yang cukup terasa (20-50%). Sebaiknya gunakan sebagai pembanding saja, bukan penentu utama.";
+                            } else {
+                                $kesimpulan = "BURUK (Inaccurate)";
+                                $class_badge = "bg-red";
+                                $deskripsi = "Model tidak akurat (Error > 50%). Pola data pengunjung sangat acak atau tidak linier. Tidak disarankan untuk forecasting.";
+                            }
+                            ?>
+                            <p class="lead">
+                                Tingkat Akurasi (MAPE): <span class="badge <?php echo $class_badge; ?>"
+                                    style="font-size:100%;"><?php echo number_format($mape, 2); ?>%</span>
+                                &nbsp; &rightarrow; &nbsp; <strong><?php echo $kesimpulan; ?></strong>
+                            </p>
+                            <div class="alert alert-default" style="border: 1px solid #ddd; background-color: #f9f9f9;">
+                                <i class="fa fa-info-circle"></i> <?php echo $deskripsi; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="box box-info collapsed-box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Detail Perhitungan Matematika (Langkah demi Langkah)</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                        class="fa fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+
+                            <!-- LANGKAH 1: TABEL BANTU -->
+                            <h4>Langkah 1: Menyiapkan Data & Variabel (X dan Y)</h4>
+                            <p>Kita ubah periode bulan menjadi angka urut (X) dan jumlah pengunjung menjadi Y.</p>
+                            <table class="table table-bordered table-striped table-hover table-condensed">
+                                <thead>
+                                    <tr class="bg-info">
+                                        <th class="text-center">No</th>
+                                        <th class="text-center">Bulan</th>
+                                        <th class="text-center">X (Periode)</th>
+                                        <th class="text-center">Y (Pengunjung)</th>
+                                        <th class="text-center">X . Y</th>
+                                        <th class="text-center">X&sup2;</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($rows as $i => $row): ?>
+                                        <tr>
+                                            <td class="text-center"><?php echo $i + 1; ?></td>
+                                            <td><?php echo date('M Y', mktime(0, 0, 0, $row['month'], 1, $row['year'])); ?>
+                                            </td>
+                                            <td class="text-center"><?php echo $row['x_period']; ?></td>
+                                            <td class="text-right"><?php echo number_format($row['y_total']); ?></td>
+                                            <td class="text-right">
+                                                <?php echo number_format($row['x_period'] * $row['y_total']); ?>
+                                            </td>
+                                            <td class="text-right">
+                                                <?php echo number_format($row['x_period'] * $row['x_period']); ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                                <tfoot>
+                                    <tr style="font-weight:bold; background-color:#eaeaea;">
+                                        <td colspan="2" class="text-center">TOTAL (&Sigma;)</td>
+                                        <td class="text-center"><?php echo number_format($fit['sum_x']); ?></td>
+                                        <td class="text-right"><?php echo number_format($fit['sum_y']); ?></td>
+                                        <td class="text-right"><?php echo number_format($fit['sum_xy']); ?></td>
+                                        <td class="text-right"><?php echo number_format($fit['sum_x2']); ?></td>
+                                    </tr>
+                                    <tr style="font-weight:bold; color:blue;">
+                                        <td colspan="2" class="text-center">Notasi</td>
+                                        <td class="text-center">&Sigma;X</td>
+                                        <td class="text-right">&Sigma;Y</td>
+                                        <td class="text-right">&Sigma;XY</td>
+                                        <td class="text-right">&Sigma;X&sup2;</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <br>
+                            <hr>
+
+                            <!-- LANGKAH 2: CARI A DAN B -->
+                            <h4>Langkah 2: Menghitung Koefisien Regresi (a & b)</h4>
+                            <p>Rumus Regresi Linier: <code>Y' = a + bX</code></p>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="well">
+                                        <strong>Mencari Slope (b) - Kemiringan Garis</strong><br>
+                                        <small>Rumus: (n.&Sigma;XY - &Sigma;X.&Sigma;Y) / (n.&Sigma;X&sup2; -
+                                            (&Sigma;X)&sup2;)</small>
+                                        <br><br>
+                                        n = <?php echo $fit['n']; ?> (Jumlah Data)<br>
+                                        b = ((<?php echo $fit['n']; ?> * <?php echo $fit['sum_xy']; ?>) -
+                                        (<?php echo $fit['sum_x']; ?> * <?php echo $fit['sum_y']; ?>)) / <br>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ((<?php echo $fit['n']; ?> *
+                                        <?php echo $fit['sum_x2']; ?>) - (<?php echo $fit['sum_x']; ?>)&sup2;)
+                                        <br><br>
+                                        <strong>b = <?php echo number_format($fit['b'], 6); ?></strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="well">
+                                        <strong>Mencari Intercept (a) - Titik Potong</strong><br>
+                                        <small>Rumus: (&Sigma;Y - b.&Sigma;X) / n</small>
+                                        <br><br>
+                                        a = (<?php echo $fit['sum_y']; ?> - (<?php echo number_format($fit['b'], 6); ?>
+                                        * <?php echo $fit['sum_x']; ?>)) / <?php echo $fit['n']; ?>
+                                        <br><br><br>
+                                        <strong>a = <?php echo number_format($fit['a'], 6); ?></strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="alert alert-info">
+                                <strong>Persamaan Model:</strong><br>
+                                Y' = <?php echo number_format($fit['a'], 2); ?> +
+                                (<?php echo number_format($fit['b'], 4); ?> * X)
+                            </p>
+
+                            <br>
+                            <hr>
+
+                            <!-- LANGKAH 3: TABEL ERROR -->
+                            <h4>Langkah 3: Menghitung Prediksi & Error (Selisih)</h4>
+                            <p>Disini kita bandingkan <strong>Y (Aktual)</strong> dengan <strong>Y' (Hasil Rumus)</strong>
+                                untuk mencari error.</p>
+                            <table class="table table-bordered table-striped table-hover table-condensed"
+                                style="font-size: 0.9em;">
+                                <thead>
+                                    <tr class="bg-warning">
+                                        <th class="text-center">No</th>
+                                        <th class="text-center">X</th>
+                                        <th class="text-center">Y (Aktual)</th>
+                                        <th class="text-center">Y' (Prediksi)</th>
+                                        <th class="text-center">Error (Y-Y')</th>
+                                        <th class="text-center">Abs Error |e|</th>
+                                        <th class="text-center">Square Error e&sup2;</th>
+                                        <th class="text-center">% Error (Mape)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $total_abs_error = 0;
+                                    $total_sq_error = 0;
+                                    $total_pct_error = 0;
+                                    foreach ($rows as $i => $row):
+                                        $x = $row['x_period'];
+                                        $y_act = $row['y_total'];
+                                        $y_pred = $fit['a'] + ($fit['b'] * $x);
+                                        $error = $y_act - $y_pred;
+                                        $abs_error = abs($error);
+                                        $sq_error = pow($error, 2);
+                                        $pct_error = ($y_act != 0) ? ($abs_error / $y_act) * 100 : 0;
+
+                                        $total_abs_error += $abs_error;
+                                        $total_sq_error += $sq_error;
+                                        $total_pct_error += $pct_error;
+                                        ?>
+                                        <tr>
+                                            <td class="text-center"><?php echo $i + 1; ?></td>
+                                            <td class="text-center"><?php echo $x; ?></td>
+                                            <td class="text-right"><?php echo number_format($y_act); ?></td>
+                                            <td class="text-right" style="font-weight:bold; color:#0073b7;">
+                                                <?php echo number_format($y_pred, 2); ?>
+                                            </td>
+                                            <td class="text-right"><?php echo number_format($error, 2); ?></td>
+                                            <td class="text-right"><?php echo number_format($abs_error, 2); ?></td>
+                                            <td class="text-right"><?php echo number_format($sq_error, 2); ?></td>
+                                            <td class="text-right"><?php echo number_format($pct_error, 2); ?>%</td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                                <tfoot>
+                                    <tr style="font-weight:bold; background-color:#eaeaea;">
+                                        <td colspan="5" class="text-center">TOTAL JUMLAH (&Sigma;)</td>
+                                        <td class="text-right"><?php echo number_format($total_abs_error, 2); ?></td>
+                                        <td class="text-right"><?php echo number_format($total_sq_error, 2); ?></td>
+                                        <td class="text-right"><?php echo number_format($total_pct_error, 2); ?>%</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <br>
+                            <hr>
+
+                            <!-- LANGKAH 4: HITUNG FINAL METRICS -->
+                            <h4>Langkah 4: Menghitung Rata-rata Error (Final Metric)</h4>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="callout callout-danger"
+                                        style="background:white; color:black; border:1px solid #ddd;">
+                                        <strong>MAE (Mean Absolute Error)</strong><br>
+                                        Rata-rata kesalahan mutlak.<br>
+                                        <code>&Sigma;|e| / n</code><br>
+                                        <?php echo number_format($total_abs_error, 2); ?> / <?php echo $fit['n']; ?><br>
+                                        = <strong><?php echo number_format($eval['MAE'], 4); ?></strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="callout callout-danger"
+                                        style="background:white; color:black; border:1px solid #ddd;">
+                                        <strong>MSE (Mean Squared Error)</strong><br>
+                                        Rata-rata kuadrat kesalahan.<br>
+                                        <code>&Sigma;e&sup2; / n</code><br>
+                                        <?php echo number_format($total_sq_error, 2); ?> / <?php echo $fit['n']; ?><br>
+                                        = <strong><?php echo number_format($eval['MSE'], 4); ?></strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="callout callout-success"
+                                        style="background:#eaffea; color:black; border:1px solid #00a65a;">
+                                        <strong>MAPE (Mean Abs % Error)</strong><br>
+                                        Rata-rata persentase kesalahan.<br>
+                                        <code>&Sigma;%Error / n</code><br>
+                                        <?php echo number_format($total_pct_error, 2); ?> / <?php echo $fit['n']; ?><br>
+                                        = <strong><?php echo number_format($eval['MAPE'], 2); ?>%</strong>
                                     </div>
                                 </div>
                             </div>

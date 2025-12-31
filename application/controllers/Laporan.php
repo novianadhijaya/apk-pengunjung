@@ -20,18 +20,48 @@ class Laporan extends CI_Controller
 
     public function pengunjung()
     {
-        $month = $this->input->get('month', TRUE);
+        $rows = $this->get_pengunjung_data();
         $data = [
-            'month' => $month,
-            'rows' => $this->Master_pengunjung_model->get_all_filter($month),
+            'rows' => $rows,
+            'start_month' => $this->input->get('start_month', TRUE) ?: 1,
+            'start_year' => $this->input->get('start_year', TRUE) ?: date('Y'),
+            'end_month' => $this->input->get('end_month', TRUE) ?: 12,
+            'end_year' => $this->input->get('end_year', TRUE) ?: date('Y'),
         ];
         $this->template->load('template', 'laporan/pengunjung', $data);
     }
 
+    private function get_pengunjung_data()
+    {
+        $start_year = $this->input->get('start_year', TRUE) ?: date('Y');
+        $start_month = $this->input->get('start_month', TRUE) ?: 1;
+        $end_year = $this->input->get('end_year', TRUE) ?: date('Y');
+        $end_month = $this->input->get('end_month', TRUE) ?: 12;
+
+        $start = sprintf('%04d-%02d', $start_year, $start_month);
+        $end = sprintf('%04d-%02d', $end_year, $end_month);
+
+        return $this->Master_pengunjung_model->get_all_filter_range($start, $end);
+    }
+
+    private function get_monthly_data_filtered()
+    {
+        $start_year = $this->input->get('start_year', TRUE) ?: date('Y');
+        $start_month = $this->input->get('start_month', TRUE) ?: 1;
+        $end_year = $this->input->get('end_year', TRUE) ?: date('Y');
+        $end_month = $this->input->get('end_month', TRUE) ?: 12;
+
+        return $this->Monthly_model->get_filtered(
+            (int) $start_year,
+            (int) $start_month,
+            (int) $end_year,
+            (int) $end_month
+        );
+    }
+
     public function pengunjung_excel()
     {
-        $month = $this->input->get('month', TRUE);
-        $rows = $this->Master_pengunjung_model->get_all_filter($month);
+        $rows = $this->get_pengunjung_data();
 
         header("Content-type: application/vnd-ms-excel");
         header("Content-Disposition: attachment; filename=Laporan_Data_Pengunjung.xls");
@@ -64,8 +94,8 @@ class Laporan extends CI_Controller
 
     public function pengunjung_pdf()
     {
-        $month = $this->input->get('month', TRUE);
-        $rows = $this->Master_pengunjung_model->get_all_filter($month);
+        $rows = $this->get_pengunjung_data();
+        $month_label = "Filter Periode"; // Simplify label for now or reconstruct from params
 
         $this->load->library('pdf');
         $pdf = new FPDF('L', 'mm', 'A4');
@@ -73,9 +103,9 @@ class Laporan extends CI_Controller
         $pdf->SetFont('Arial', 'B', 16);
         $pdf->Cell(277, 7, 'Laporan Data Pengunjung', 0, 1, 'C');
         $pdf->SetFont('Arial', 'B', 12);
-        if ($month) {
-            $pdf->Cell(277, 7, 'Periode: ' . $month, 0, 1, 'C');
-        }
+
+        $pdf->Cell(277, 7, $month_label, 0, 1, 'C');
+
         $pdf->Cell(10, 7, '', 0, 1);
 
         $pdf->SetFont('Arial', 'B', 10);
@@ -104,15 +134,21 @@ class Laporan extends CI_Controller
 
     public function prediksi()
     {
-        $rows = $this->Monthly_model->get_all_ordered();
-        $data = $this->build_prediksi_data($rows, $this->input->get('month', TRUE));
+        $rows = $this->get_monthly_data_filtered();
+        $data = $this->build_prediksi_data($rows, $this->input->get('target_month', TRUE));
+
+        $data['start_month'] = $this->input->get('start_month', TRUE) ?: 1;
+        $data['start_year'] = $this->input->get('start_year', TRUE) ?: date('Y');
+        $data['end_month'] = $this->input->get('end_month', TRUE) ?: 12;
+        $data['end_year'] = $this->input->get('end_year', TRUE) ?: date('Y');
+
         $this->template->load('template', 'laporan/prediksi', $data);
     }
 
     public function prediksi_excel()
     {
-        $rows = $this->Monthly_model->get_all_ordered();
-        $data = $this->build_prediksi_data($rows, $this->input->get('month', TRUE));
+        $rows = $this->get_monthly_data_filtered();
+        $data = $this->build_prediksi_data($rows, $this->input->get('target_month', TRUE));
 
         header("Content-type: application/vnd-ms-excel");
         header("Content-Disposition: attachment; filename=Laporan_Hasil_Prediksi.xls");
@@ -135,7 +171,7 @@ class Laporan extends CI_Controller
             echo "<tr>";
             echo "<td>" . $r['x_period'] . "</td>";
             echo "<td>" . sprintf('%04d-%02d', $r['year'], $r['month']) . "</td>";
-            echo "<td>" . (int)$r['y_total'] . "</td>";
+            echo "<td>" . (int) $r['y_total'] . "</td>";
             echo "<td>" . round($data['fit']['yhat'][$i], 2) . "</td>";
             echo "</tr>";
         }
@@ -144,8 +180,8 @@ class Laporan extends CI_Controller
 
     public function prediksi_pdf()
     {
-        $rows = $this->Monthly_model->get_all_ordered();
-        $data = $this->build_prediksi_data($rows, $this->input->get('month', TRUE));
+        $rows = $this->get_monthly_data_filtered();
+        $data = $this->build_prediksi_data($rows, $this->input->get('target_month', TRUE));
 
         $this->load->library('pdf');
         $pdf = new FPDF('L', 'mm', 'A4');
@@ -162,6 +198,17 @@ class Laporan extends CI_Controller
         if ($data['target']) {
             $pdf->Cell(277, 6, 'Bulan Target: ' . $data['target']['month'], 0, 1, 'C');
             $pdf->Cell(277, 6, 'Prediksi (Yhat): ' . round($data['target']['y_pred'], 2), 0, 1, 'C');
+        } else {
+            // Auto Calculation fallback if no target
+            $last_row = $rows[count($rows) - 1];
+            $last_x = (int) $last_row['x_period'];
+            $target_x = $last_x + 1;
+            $next_pred = $this->reg->predict($data['fit']['a'], $data['fit']['b'], $target_x);
+            $last_date_str = sprintf('%04d-%02d-01', $last_row['year'], $last_row['month']);
+            $next_date = date('M Y', strtotime($last_date_str . ' +1 month'));
+
+            $pdf->SetFont('Arial', 'B', 12);
+            $pdf->Cell(277, 8, "Prediksi Bulan Depan ($next_date): " . round($next_pred, 2), 0, 1, 'C');
         }
         $pdf->Cell(10, 6, '', 0, 1);
 
@@ -192,7 +239,7 @@ class Laporan extends CI_Controller
         foreach ($data['rows'] as $i => $r) {
             $pdf->Cell(20, 6, $r['x_period'], 1, 0, 'C');
             $pdf->Cell(40, 6, sprintf('%04d-%02d', $r['year'], $r['month']), 1, 0, 'C');
-            $pdf->Cell(30, 6, (int)$r['y_total'], 1, 0, 'C');
+            $pdf->Cell(30, 6, (int) $r['y_total'], 1, 0, 'C');
             $pdf->Cell(30, 6, round($data['fit']['yhat'][$i], 2), 1, 1, 'C');
         }
 
@@ -201,14 +248,20 @@ class Laporan extends CI_Controller
 
     public function pengujian()
     {
-        $rows = $this->Monthly_model->get_all_ordered();
+        $rows = $this->get_monthly_data_filtered();
         $data = $this->build_pengujian_data($rows);
+
+        $data['start_month'] = $this->input->get('start_month', TRUE) ?: 1;
+        $data['start_year'] = $this->input->get('start_year', TRUE) ?: date('Y');
+        $data['end_month'] = $this->input->get('end_month', TRUE) ?: 12;
+        $data['end_year'] = $this->input->get('end_year', TRUE) ?: date('Y');
+
         $this->template->load('template', 'laporan/pengujian', $data);
     }
 
     public function pengujian_excel()
     {
-        $rows = $this->Monthly_model->get_all_ordered();
+        $rows = $this->get_monthly_data_filtered();
         $data = $this->build_pengujian_data($rows);
 
         header("Content-type: application/vnd-ms-excel");
@@ -236,7 +289,7 @@ class Laporan extends CI_Controller
 
     public function pengujian_pdf()
     {
-        $rows = $this->Monthly_model->get_all_ordered();
+        $rows = $this->get_monthly_data_filtered();
         $data = $this->build_pengujian_data($rows);
 
         $this->load->library('pdf');
@@ -301,9 +354,9 @@ class Laporan extends CI_Controller
         $data['fit'] = $fit;
 
         $last = $rows[count($rows) - 1];
-        $last_year = (int)$last['year'];
-        $last_month = (int)$last['month'];
-        $last_x = (int)$last['x_period'];
+        $last_year = (int) $last['year'];
+        $last_month = (int) $last['month'];
+        $last_x = (int) $last['x_period'];
 
         if (empty($target_month)) {
             $default = sprintf('%04d-%02d-01', $last_year, $last_month);
@@ -314,8 +367,8 @@ class Laporan extends CI_Controller
             $data['notice'] = 'Format bulan tidak valid. Gunakan format YYYY-MM.';
         } else {
             list($target_year, $target_mo) = explode('-', $target_month);
-            $target_year = (int)$target_year;
-            $target_mo = (int)$target_mo;
+            $target_year = (int) $target_year;
+            $target_mo = (int) $target_mo;
 
             $last_index = ($last_year * 12) + $last_month;
             $target_index = ($target_year * 12) + $target_mo;
