@@ -19,7 +19,7 @@ class Prediction extends CI_Controller
         $cur_y = date('Y');
 
         $start_month = $this->input->get('start_month', TRUE) ?: 1;
-        $start_year = $this->input->get('start_year', TRUE) ?: $cur_y;
+        $start_year = $this->input->get('start_year', TRUE) ?: $cur_y - 1;
         $end_month = $this->input->get('end_month', TRUE) ?: 12;
         $end_year = $this->input->get('end_year', TRUE) ?: $cur_y;
 

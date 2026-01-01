@@ -90,7 +90,7 @@ class Dashboard_model extends CI_Model
                 return ['count' => 0, 'label' => '-'];
             }
 
-            $rows = $this->db->where('year', date('Y'))
+            $rows = $this->db->where('year >=', date('Y') - 1)
                 ->order_by('year', 'ASC')
                 ->order_by('month', 'ASC')
                 ->get('monthly_visits')

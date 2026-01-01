@@ -77,7 +77,9 @@ class Master_pengunjung_model extends CI_Model
     // get all for export with date range
     function get_all_filter_range($start_date, $end_date)
     {
-        $this->db->order_by($this->id, $this->order);
+        // Order chronologically so laporan tampil rapi dari awal ke akhir periode
+        $this->db->order_by('visit_date', 'ASC');
+        $this->db->order_by('visit_time', 'ASC');
         if ($start_date && $end_date) {
             $this->db->where('visit_date >=', $start_date . '-01');
             $this->db->where('visit_date <=', date('Y-m-t', strtotime($end_date . '-01')));
