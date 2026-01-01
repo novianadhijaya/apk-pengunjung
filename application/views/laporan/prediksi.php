@@ -99,11 +99,11 @@
                                 <div class="alert alert-warning"><?php echo $notice; ?></div>
                             <?php endif; ?>
 
-                            <?php if (!empty($target)): ?>
+                            <?php if (!empty($forecasts)): ?>
                                 <div class="alert alert-info">
                                     <h4><i class="icon fa fa-bar-chart"></i> Prediksi Bulan Depan
-                                        (<?php echo $target['month']; ?>)</h4>
-                                    Angka Prediksi: <b><?php echo number_format($target['y_pred'], 0, ',', '.'); ?></b>
+                                        (<?php echo $forecasts[0]['month']; ?>)</h4>
+                                    Angka Prediksi: <b><?php echo number_format($forecasts[0]['y_pred'], 0, ',', '.'); ?></b>
                                 </div>
                                 <hr>
                             <?php endif; ?>
@@ -141,6 +141,16 @@
                                             <td><?php echo round($fit['yhat'][$i], 2); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
+                                    <?php if (!empty($forecasts)): ?>
+                                        <?php foreach ($forecasts as $f): ?>
+                                            <tr class="success" style="font-weight: bold;">
+                                                <td><?php echo $f['x']; ?></td>
+                                                <td><?php echo $f['month']; ?> (Prediksi)</td>
+                                                <td>-</td>
+                                                <td><?php echo number_format($f['y_pred'], 2); ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>

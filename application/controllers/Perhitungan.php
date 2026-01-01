@@ -83,7 +83,7 @@ class Perhitungan extends CI_Controller
 
     public function export_excel()
     {
-        $start_year = $this->input->get('start_year', TRUE) ?: date('Y');
+        $start_year = $this->input->get('start_year', TRUE) ?: date('Y') - 1;
         $start_month = $this->input->get('start_month', TRUE) ?: 1;
         $end_year = $this->input->get('end_year', TRUE) ?: date('Y');
         $end_month = $this->input->get('end_month', TRUE) ?: 12;
@@ -148,7 +148,7 @@ class Perhitungan extends CI_Controller
     public function export_pdf()
     {
         // Support both GET (legacy) and POST (with charts)
-        $start_year = $this->input->post_get('start_year', TRUE) ?: date('Y');
+        $start_year = $this->input->post_get('start_year', TRUE) ?: date('Y') - 1;
         $start_month = $this->input->post_get('start_month', TRUE) ?: 1;
         $end_year = $this->input->post_get('end_year', TRUE) ?: date('Y');
         $end_month = $this->input->post_get('end_month', TRUE) ?: 12;

@@ -24,7 +24,7 @@ class Laporan extends CI_Controller
         $data = [
             'rows' => $rows,
             'start_month' => $this->input->get('start_month', TRUE) ?: 1,
-            'start_year' => $this->input->get('start_year', TRUE) ?: date('Y'),
+            'start_year' => $this->input->get('start_year', TRUE) ?: date('Y') - 1,
             'end_month' => $this->input->get('end_month', TRUE) ?: 12,
             'end_year' => $this->input->get('end_year', TRUE) ?: date('Y'),
         ];
@@ -33,7 +33,7 @@ class Laporan extends CI_Controller
 
     private function get_pengunjung_data()
     {
-        $start_year = $this->input->get('start_year', TRUE) ?: date('Y');
+        $start_year = $this->input->get('start_year', TRUE) ?: date('Y') - 1;
         $start_month = $this->input->get('start_month', TRUE) ?: 1;
         $end_year = $this->input->get('end_year', TRUE) ?: date('Y');
         $end_month = $this->input->get('end_month', TRUE) ?: 12;
@@ -46,7 +46,7 @@ class Laporan extends CI_Controller
 
     private function get_monthly_data_filtered()
     {
-        $start_year = $this->input->get('start_year', TRUE) ?: date('Y');
+        $start_year = $this->input->get('start_year', TRUE) ?: date('Y') - 1;
         $start_month = $this->input->get('start_month', TRUE) ?: 1;
         $end_year = $this->input->get('end_year', TRUE) ?: date('Y');
         $end_month = $this->input->get('end_month', TRUE) ?: 12;
@@ -138,7 +138,7 @@ class Laporan extends CI_Controller
         $data = $this->build_prediksi_data($rows, $this->input->get('target_month', TRUE));
 
         $data['start_month'] = $this->input->get('start_month', TRUE) ?: 1;
-        $data['start_year'] = $this->input->get('start_year', TRUE) ?: date('Y');
+        $data['start_year'] = $this->input->get('start_year', TRUE) ?: date('Y') - 1;
         $data['end_month'] = $this->input->get('end_month', TRUE) ?: 12;
         $data['end_year'] = $this->input->get('end_year', TRUE) ?: date('Y');
 
@@ -160,9 +160,8 @@ class Laporan extends CI_Controller
 
         echo "<table border='1'>";
         echo "<tr><th colspan='4'>Laporan Hasil Prediksi</th></tr>";
-        if ($data['target']) {
-            echo "<tr><td colspan='4'>Bulan Target: " . $data['target']['month'] . "</td></tr>";
-            echo "<tr><td colspan='4'>Prediksi (Yhat): " . round($data['target']['y_pred'], 2) . "</td></tr>";
+        if (!empty($data['forecasts'])) {
+            // Remove top block
         }
         echo "<tr><td colspan='4'>a=" . round($data['fit']['a'], 6) . " | b=" . round($data['fit']['b'], 6) . "</td></tr>";
         echo "<tr><th>X</th><th>Bulan</th><th>Y</th><th>Yhat</th></tr>";
@@ -174,6 +173,17 @@ class Laporan extends CI_Controller
             echo "<td>" . (int) $r['y_total'] . "</td>";
             echo "<td>" . round($data['fit']['yhat'][$i], 2) . "</td>";
             echo "</tr>";
+        }
+
+        if (!empty($data['forecasts'])) {
+            foreach ($data['forecasts'] as $f) {
+                echo "<tr style='background-color: #c9f7f5;'>";
+                echo "<td>" . $f['x'] . "</td>";
+                echo "<td>" . $f['month'] . " (Prediksi)</td>";
+                echo "<td>-</td>";
+                echo "<td>" . round($f['y_pred'], 2) . "</td>";
+                echo "</tr>";
+            }
         }
         echo "</table>";
     }
@@ -195,20 +205,8 @@ class Laporan extends CI_Controller
             return;
         }
         $pdf->SetFont('Arial', '', 11);
-        if ($data['target']) {
-            $pdf->Cell(277, 6, 'Bulan Target: ' . $data['target']['month'], 0, 1, 'C');
-            $pdf->Cell(277, 6, 'Prediksi (Yhat): ' . round($data['target']['y_pred'], 2), 0, 1, 'C');
-        } else {
-            // Auto Calculation fallback if no target
-            $last_row = $rows[count($rows) - 1];
-            $last_x = (int) $last_row['x_period'];
-            $target_x = $last_x + 1;
-            $next_pred = $this->reg->predict($data['fit']['a'], $data['fit']['b'], $target_x);
-            $last_date_str = sprintf('%04d-%02d-01', $last_row['year'], $last_row['month']);
-            $next_date = date('M Y', strtotime($last_date_str . ' +1 month'));
-
-            $pdf->SetFont('Arial', 'B', 12);
-            $pdf->Cell(277, 8, "Prediksi Bulan Depan ($next_date): " . round($next_pred, 2), 0, 1, 'C');
+        if (!empty($data['forecasts'])) {
+            // Remove top block
         }
         $pdf->Cell(10, 6, '', 0, 1);
 
@@ -243,6 +241,16 @@ class Laporan extends CI_Controller
             $pdf->Cell(30, 6, round($data['fit']['yhat'][$i], 2), 1, 1, 'C');
         }
 
+        if (!empty($data['forecasts'])) {
+            $pdf->SetFillColor(200, 255, 200);
+            foreach ($data['forecasts'] as $f) {
+                $pdf->Cell(20, 6, $f['x'], 1, 0, 'C', true);
+                $pdf->Cell(40, 6, $f['month'] . ' (Pred)', 1, 0, 'C', true);
+                $pdf->Cell(30, 6, '-', 1, 0, 'C', true);
+                $pdf->Cell(30, 6, round($f['y_pred'], 2), 1, 1, 'C', true);
+            }
+        }
+
         $pdf->Output();
     }
 
@@ -252,7 +260,7 @@ class Laporan extends CI_Controller
         $data = $this->build_pengujian_data($rows);
 
         $data['start_month'] = $this->input->get('start_month', TRUE) ?: 1;
-        $data['start_year'] = $this->input->get('start_year', TRUE) ?: date('Y');
+        $data['start_year'] = $this->input->get('start_year', TRUE) ?: date('Y') - 1;
         $data['end_month'] = $this->input->get('end_month', TRUE) ?: 12;
         $data['end_year'] = $this->input->get('end_year', TRUE) ?: date('Y');
 
@@ -339,7 +347,7 @@ class Laporan extends CI_Controller
         $data = [
             'rows' => $rows,
             'fit' => null,
-            'target' => null,
+            'forecasts' => [],
             'notice' => null,
             'target_month' => $target_month,
         ];
@@ -358,35 +366,38 @@ class Laporan extends CI_Controller
         $last_month = (int) $last['month'];
         $last_x = (int) $last['x_period'];
 
-        if (empty($target_month)) {
-            $default = sprintf('%04d-%02d-01', $last_year, $last_month);
-            $target_month = date('Y-m', strtotime($default . ' +1 month'));
+        // Determine range to predict
+        // Start: Next month after last data
+        // End: December 2026 (as requested) or target_month if specified greater than Dec 2026?
+        // Defaulting to Dec 2026.
+        $target_year = 2026;
+        $target_mo = 12;
+
+        $start_ts = strtotime(sprintf('%04d-%02d-01', $last_year, $last_month) . ' +1 month');
+        $end_ts = strtotime(sprintf('%04d-%02d-01', $target_year, $target_mo));
+        
+        // If data already goes beyond Dec 2026, just predict 12 months ahead
+        if ($start_ts > $end_ts) {
+            $end_ts = strtotime('+12 months', $start_ts);
         }
 
-        if (!preg_match('/^\\d{4}-\\d{2}$/', $target_month)) {
-            $data['notice'] = 'Format bulan tidak valid. Gunakan format YYYY-MM.';
-        } else {
-            list($target_year, $target_mo) = explode('-', $target_month);
-            $target_year = (int) $target_year;
-            $target_mo = (int) $target_mo;
+        $curr_ts = $start_ts;
+        $curr_x = $last_x + 1;
 
-            $last_index = ($last_year * 12) + $last_month;
-            $target_index = ($target_year * 12) + $target_mo;
-            $delta = $target_index - $last_index;
+        while ($curr_ts <= $end_ts) {
+            $label = date('Y-m', $curr_ts);
+            $y_pred = $this->reg->predict($fit['a'], $fit['b'], $curr_x);
+            
+            $data['forecasts'][] = [
+                'month' => $label,
+                'x' => $curr_x,
+                'y_pred' => $y_pred
+            ];
 
-            $target_x = $last_x + $delta;
-            if ($target_x < 1) {
-                $data['notice'] = 'Bulan target lebih awal dari data pertama. Prediksi tidak dihitung.';
-            } else {
-                $data['target'] = [
-                    'month' => $target_month,
-                    'x' => $target_x,
-                    'y_pred' => $this->reg->predict($fit['a'], $fit['b'], $target_x),
-                ];
-            }
+            $curr_ts = strtotime('+1 month', $curr_ts);
+            $curr_x++;
         }
 
-        $data['target_month'] = $target_month;
         return $data;
     }
 
