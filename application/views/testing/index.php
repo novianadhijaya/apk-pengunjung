@@ -351,6 +351,68 @@
                             <br>
                             <hr>
 
+                            <!-- LANGKAH 3B: HITUNG SSR -->
+                            <h4>Langkah 3B: Menghitung SSR (Sum of Squares Regression)</h4>
+                            <p>
+                                SSR digunakan untuk mengukur variasi hasil prediksi terhadap rata-rata data aktual.
+                                <br>
+                                <strong>Rumus:</strong> <code>SSR = &Sigma;(Y' - Ȳ)&sup2;</code>
+                                &nbsp;dengan&nbsp; <code>Ȳ = &Sigma;Y / n</code>
+                            </p>
+                            <div class="well" style="margin-bottom: 10px;">
+                                Ȳ = <?php echo number_format($eval['ybar'], 6); ?>
+                                (<?php echo number_format($fit['sum_y'], 0); ?> / <?php echo $fit['n']; ?>)
+                            </div>
+                            <table class="table table-bordered table-striped table-hover table-condensed"
+                                style="font-size: 0.9em;">
+                                <thead>
+                                    <tr class="bg-info">
+                                        <th class="text-center">No</th>
+                                        <th class="text-center">X</th>
+                                        <th class="text-center">Y' (Prediksi)</th>
+                                        <th class="text-center">Ȳ (Rata-rata)</th>
+                                        <th class="text-center">(Y' - Ȳ)</th>
+                                        <th class="text-center">(Y' - Ȳ)&sup2;</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $ybar = (float) $eval['ybar'];
+                                    $total_ssr = 0.0;
+                                    foreach ($rows as $i => $row):
+                                        $x = (float) $row['x_period'];
+                                        $y_pred = (float) ($fit['a'] + ($fit['b'] * $x));
+                                        $dev = $y_pred - $ybar;
+                                        $ssr_i = $dev * $dev;
+                                        $total_ssr += $ssr_i;
+                                        ?>
+                                        <tr>
+                                            <td class="text-center"><?php echo $i + 1; ?></td>
+                                            <td class="text-center"><?php echo number_format($x, 0); ?></td>
+                                            <td class="text-right" style="font-weight:bold; color:#0073b7;">
+                                                <?php echo number_format($y_pred, 6); ?>
+                                            </td>
+                                            <td class="text-right"><?php echo number_format($ybar, 6); ?></td>
+                                            <td class="text-right"><?php echo number_format($dev, 6); ?></td>
+                                            <td class="text-right"><?php echo number_format($ssr_i, 6); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                                <tfoot>
+                                    <tr style="font-weight:bold; background-color:#eaeaea;">
+                                        <td colspan="5" class="text-center">TOTAL SSR (&Sigma;)</td>
+                                        <td class="text-right"><?php echo number_format($total_ssr, 6); ?></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            <p class="alert alert-info" style="margin-top: 10px;">
+                                <strong>Hasil:</strong> SSR = <?php echo number_format($total_ssr, 6); ?>
+                                (harus sama dengan SSR di tabel hasil pengujian: <?php echo number_format($eval['SSR'], 6); ?>)
+                            </p>
+
+                            <br>
+                            <hr>
+
                             <!-- LANGKAH 4: HITUNG FINAL METRICS -->
                             <h4>Langkah 4: Menghitung Rata-rata Error (Final Metric)</h4>
                             <div class="row">
