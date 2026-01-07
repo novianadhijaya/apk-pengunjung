@@ -1,1 +1,4 @@
-
+/application/config/
+/application/cache/sessions/*
+!/application/cache/sessions/.gitignore
+.DS_Store
