@@ -32,13 +32,14 @@
             font-family: 'Sora', 'Source Sans Pro', system-ui, sans-serif;
         }
 
-        body {
-            min-height: 100vh;
-            background: radial-gradient(circle at top, #fff4d9 0%, var(--cream) 45%, var(--mint) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 30px 15px;
+	        body {
+	            min-height: 100vh;
+	            min-height: 100svh;
+	            background: radial-gradient(circle at top, #fff4d9 0%, var(--cream) 45%, var(--mint) 100%);
+	            display: flex;
+	            align-items: center;
+	            justify-content: center;
+	            padding: 30px 15px;
             position: relative;
             overflow-x: hidden;
         }
@@ -343,21 +344,36 @@
             }
         }
 
-        @media (max-width: 560px) {
-            .auth-form {
-                padding: 30px 24px;
-            }
+	        @media (max-width: 560px) {
+	            body {
+	                align-items: flex-start;
+	                padding: 16px 12px;
+	            }
 
-            .auth-visual {
-                padding: 28px 24px;
-            }
+	            .auth-form {
+	                padding: 30px 24px;
+	            }
 
-            .brand img {
-                width: 78px;
-                height: 78px;
-            }
-        }
-    </style>
+	            .auth-visual {
+	                min-height: initial;
+	                padding: 28px 24px;
+	            }
+
+	            .auth-visual h1 {
+	                font-size: 24px;
+	            }
+
+	            .auth-highlights,
+	            .auth-meta {
+	                display: none;
+	            }
+
+	            .brand img {
+	                width: 78px;
+	                height: 78px;
+	            }
+	        }
+	    </style>
 </head>
 
 <body class="hold-transition">
