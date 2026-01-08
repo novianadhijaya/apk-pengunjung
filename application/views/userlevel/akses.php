@@ -3,8 +3,48 @@
 	        <div class="row">
 	            <div class="col-xs-12">
 	                <?php echo alert('alert-info', 'Perhatian', 'Silahkan Cheklist Pada Menu Yang Akan Diberikan Akses') ?>
-	                <div id="akses-notif" class="alert alert-success" style="display:none; margin-top:10px;">
-	                    <strong>Berhasil</strong> simpan perubahan.
+	                <style>
+	                    #akses-notif-modal .modal-dialog {
+	                        position: fixed;
+	                        top: 50%;
+	                        left: 50%;
+	                        transform: translate(-50%, -50%);
+	                        margin: 0;
+	                        width: 92%;
+	                        max-width: 420px;
+	                    }
+
+	                    #akses-notif-modal .modal-header {
+	                        border-bottom: 0;
+	                    }
+
+	                    #akses-notif-modal .modal-body {
+	                        padding-top: 0;
+	                    }
+
+	                    #akses-notif-modal.akses-modal-success .modal-header {
+	                        background: #00a65a;
+	                        color: #fff;
+	                        border-radius: 4px 4px 0 0;
+	                    }
+
+	                    #akses-notif-modal.akses-modal-danger .modal-header {
+	                        background: #dd4b39;
+	                        color: #fff;
+	                        border-radius: 4px 4px 0 0;
+	                    }
+	                </style>
+
+	                <div class="modal fade" id="akses-notif-modal" tabindex="-1" role="dialog" aria-labelledby="aksesNotifTitle">
+	                    <div class="modal-dialog" role="document">
+	                        <div class="modal-content">
+	                            <div class="modal-header">
+	                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	                                <h4 class="modal-title" id="aksesNotifTitle">Notifikasi</h4>
+	                            </div>
+	                            <div class="modal-body" id="akses-notif-message">...</div>
+	                        </div>
+	                    </div>
 	                </div>
 	                <div class="box box-warning box-solid">
 
@@ -49,20 +89,27 @@
 	<script type="text/javascript">
 	    var aksesNotifTimer = null;
 	    function showAksesNotif(message, type) {
-	        var $notif = $('#akses-notif');
-	        $notif
-	            .removeClass('alert-success alert-danger alert-info alert-warning')
-	            .addClass(type || 'alert-success')
-	            .html(message || '<strong>Berhasil</strong> simpan perubahan.')
-	            .stop(true, true)
-	            .fadeIn(150);
+	        var $modal = $('#akses-notif-modal');
+	        var $message = $('#akses-notif-message');
+
+	        $modal.removeClass('akses-modal-success akses-modal-danger');
+	        if (type === 'danger' || type === 'error') {
+	            $modal.addClass('akses-modal-danger');
+	            $('#aksesNotifTitle').text('Gagal');
+	        } else {
+	            $modal.addClass('akses-modal-success');
+	            $('#aksesNotifTitle').text('Berhasil');
+	        }
+	        $message.html(message || 'Berhasil simpan perubahan.');
+
+	        $modal.modal({backdrop: true, keyboard: true, show: true});
 
 	        if (aksesNotifTimer) {
 	            clearTimeout(aksesNotifTimer);
 	        }
 	        aksesNotifTimer = setTimeout(function () {
-	            $notif.fadeOut(200);
-	        }, 2000);
+	            $modal.modal('hide');
+	        }, 120000);
 	    }
 
 	    function kasi_akses(id_menu){
@@ -77,10 +124,10 @@
 	            { 
 	                //load();
 	                //alert('sukses');
-	                showAksesNotif('<strong>Berhasil</strong> simpan perubahan.', 'alert-success');
+	                showAksesNotif('Berhasil simpan perubahan.', 'success');
 	            },
 	            error: function () {
-	                showAksesNotif('<strong>Gagal</strong> simpan perubahan. Coba lagi.', 'alert-danger');
+	                showAksesNotif('Gagal simpan perubahan. Coba lagi.', 'danger');
 	            }
 	        });
 	    }    
