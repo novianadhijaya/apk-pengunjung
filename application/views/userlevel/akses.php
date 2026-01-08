@@ -4,6 +4,10 @@
 	            <div class="col-xs-12">
 	                <?php echo alert('alert-info', 'Perhatian', 'Silahkan Cheklist Pada Menu Yang Akan Diberikan Akses') ?>
 	                <style>
+	                    #akses-notif-modal {
+	                        pointer-events: none;
+	                    }
+
 	                    #akses-notif-modal .modal-dialog {
 	                        position: fixed;
 	                        top: 50%;
@@ -14,35 +18,76 @@
 	                        max-width: 420px;
 	                    }
 
-	                    #akses-notif-modal .modal-header {
-	                        border-bottom: 0;
+	                    #akses-notif-modal .modal-content {
+	                        border: 0;
+	                        border-radius: 14px;
+	                        box-shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
+	                        overflow: hidden;
 	                    }
 
-	                    #akses-notif-modal .modal-body {
-	                        padding-top: 0;
+	                    #akses-notif-modal .akses-toast {
+	                        display: flex;
+	                        gap: 14px;
+	                        align-items: center;
+	                        padding: 16px 18px;
+	                        background: #fff;
 	                    }
 
-	                    #akses-notif-modal.akses-modal-success .modal-header {
+	                    #akses-notif-modal .akses-toast-icon {
+	                        width: 40px;
+	                        height: 40px;
+	                        border-radius: 12px;
+	                        display: inline-flex;
+	                        align-items: center;
+	                        justify-content: center;
+	                        color: #fff;
+	                        flex: 0 0 auto;
+	                    }
+
+	                    #akses-notif-modal .akses-toast-title {
+	                        font-weight: 700;
+	                        font-size: 16px;
+	                        margin-bottom: 2px;
+	                    }
+
+	                    #akses-notif-modal .akses-toast-message {
+	                        color: #556;
+	                        font-size: 13px;
+	                    }
+
+	                    #akses-notif-modal.akses-modal-success .akses-toast-icon {
 	                        background: #00a65a;
-	                        color: #fff;
-	                        border-radius: 4px 4px 0 0;
 	                    }
 
-	                    #akses-notif-modal.akses-modal-danger .modal-header {
+	                    #akses-notif-modal.akses-modal-danger .akses-toast-icon {
 	                        background: #dd4b39;
-	                        color: #fff;
-	                        border-radius: 4px 4px 0 0;
+	                    }
+
+	                    #akses-notif-modal.akses-modal-success .akses-toast-title {
+	                        color: #0b3d2e;
+	                    }
+
+	                    #akses-notif-modal.akses-modal-danger .akses-toast-title {
+	                        color: #3d0b0b;
+	                    }
+
+	                    .modal-backdrop.akses-notif-backdrop {
+	                        display: none !important;
 	                    }
 	                </style>
 
-	                <div class="modal fade" id="akses-notif-modal" tabindex="-1" role="dialog" aria-labelledby="aksesNotifTitle">
+	                <div class="modal fade" id="akses-notif-modal" tabindex="-1" role="dialog" aria-hidden="true">
 	                    <div class="modal-dialog" role="document">
 	                        <div class="modal-content">
-	                            <div class="modal-header">
-	                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-	                                <h4 class="modal-title" id="aksesNotifTitle">Notifikasi</h4>
+	                            <div class="akses-toast">
+	                                <div class="akses-toast-icon">
+	                                    <i class="fa fa-check" id="akses-notif-icon" aria-hidden="true"></i>
+	                                </div>
+	                                <div class="akses-toast-text">
+	                                    <div class="akses-toast-title" id="aksesNotifTitle">Berhasil</div>
+	                                    <div class="akses-toast-message" id="akses-notif-message">...</div>
+	                                </div>
 	                            </div>
-	                            <div class="modal-body" id="akses-notif-message">...</div>
 	                        </div>
 	                    </div>
 	                </div>
@@ -91,25 +136,29 @@
 	    function showAksesNotif(message, type) {
 	        var $modal = $('#akses-notif-modal');
 	        var $message = $('#akses-notif-message');
+	        var $icon = $('#akses-notif-icon');
 
 	        $modal.removeClass('akses-modal-success akses-modal-danger');
 	        if (type === 'danger' || type === 'error') {
 	            $modal.addClass('akses-modal-danger');
 	            $('#aksesNotifTitle').text('Gagal');
+	            $icon.removeClass('fa-check').addClass('fa-times');
 	        } else {
 	            $modal.addClass('akses-modal-success');
 	            $('#aksesNotifTitle').text('Berhasil');
+	            $icon.removeClass('fa-times').addClass('fa-check');
 	        }
 	        $message.html(message || 'Berhasil simpan perubahan.');
 
-	        $modal.modal({backdrop: true, keyboard: true, show: true});
+	        $modal.modal({backdrop: false, keyboard: true, show: true});
+	        $('.modal-backdrop').addClass('akses-notif-backdrop');
 
 	        if (aksesNotifTimer) {
 	            clearTimeout(aksesNotifTimer);
 	        }
 	        aksesNotifTimer = setTimeout(function () {
 	            $modal.modal('hide');
-	        }, 120000);
+	        }, 2000);
 	    }
 
 	    function kasi_akses(id_menu){
