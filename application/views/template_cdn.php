@@ -71,7 +71,7 @@
 
                                         <p>
                                             <?php echo $this->session->userdata('full_name'); ?>                                         
-                                            <small>Member since Nov. 2012</small>
+                                            <small><?php echo date('d M Y H:i'); ?></small>
                                         </p>
                                     </li>
                                     <!-- Menu Footer-->

@@ -8,7 +8,7 @@ class Profile extends CI_Controller
     function __construct()
     {
         parent::__construct();
-        // is_login();
+        is_login();
         $this->load->model('Tbl_profil_apps_model');
         $this->load->library('form_validation');
     }

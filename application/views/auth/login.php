@@ -204,24 +204,58 @@
             color: var(--ink-soft);
         }
 
-        .form-control {
-            height: 46px;
-            border-radius: 12px;
-            border: 1px solid var(--stroke);
-            box-shadow: none;
-        }
+	        .form-control {
+	            height: 46px;
+	            border-radius: 12px;
+	            border: 1px solid var(--stroke);
+	            box-shadow: none;
+	        }
 
         .form-control:focus {
             border-color: rgba(42, 127, 98, 0.6);
             box-shadow: 0 0 0 3px rgba(42, 127, 98, 0.12);
         }
 
-        .input-group-addon {
-            border-radius: 12px 0 0 12px;
-            background: rgba(42, 127, 98, 0.08);
-            color: var(--ink);
-            border-color: var(--stroke);
-        }
+	        .input-group .form-control {
+	            border-radius: 0;
+	        }
+
+	        .input-group .form-control:first-child {
+	            border-radius: 12px 0 0 12px;
+	        }
+
+	        .input-group .form-control:last-child {
+	            border-radius: 0 12px 12px 0;
+	        }
+
+	        .input-group-addon {
+	            background: rgba(42, 127, 98, 0.08);
+	            color: var(--ink);
+	            border-color: var(--stroke);
+	            padding: 0 14px;
+	        }
+
+	        .input-group-addon:first-child {
+	            border-radius: 12px 0 0 12px;
+	        }
+
+	        .input-group-addon:last-child {
+	            border-radius: 0 12px 12px 0;
+	        }
+
+	        .input-group-addon.password-toggle {
+	            cursor: pointer;
+	            user-select: none;
+	        }
+
+	        .input-group-addon.password-toggle:focus {
+	            outline: none;
+	            box-shadow: 0 0 0 3px rgba(42, 127, 98, 0.12);
+	        }
+
+	        .input-group-addon > i {
+	            line-height: 44px;
+	        }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
@@ -376,12 +410,15 @@
                         <input type="email" class="form-control" name="email" placeholder="Email" required>
                     </div>
                 </div>
-                <div class="form-group">
-                    <div class="input-group">
-                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
-                        <input type="password" class="form-control" name="password" placeholder="Password" required>
-                    </div>
-                </div>
+	                <div class="form-group">
+	                    <div class="input-group">
+	                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+	                        <input type="password" class="form-control" name="password" id="login-password" placeholder="Password" required>
+	                        <span class="input-group-addon password-toggle" id="toggle-login-password" role="button" tabindex="0" aria-label="Tampilkan password" aria-pressed="false">
+	                            <i class="fa fa-eye"></i>
+	                        </span>
+	                    </div>
+	                </div>
                 <button type="submit" class="btn btn-primary btn-block btn-lg"><i class="fa fa-sign-in"></i>
                     Masuk</button>
                 <?php echo form_close(); ?>
@@ -400,15 +437,31 @@
         src="<?php echo base_url(); ?>/assets/adminlte/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <!-- iCheck -->
     <script src="<?php echo base_url(); ?>/assets/adminlte/plugins/iCheck/icheck.min.js"></script>
-    <script>
-        $(function () {
-            $('input').iCheck({
-                checkboxClass: 'icheckbox_square-blue',
-                radioClass: 'iradio_square-blue',
-                increaseArea: '20%' // optional
-            });
-        });
-    </script>
-</body>
+	    <script>
+	        $(function () {
+	            $('input').iCheck({
+	                checkboxClass: 'icheckbox_square-blue',
+	                radioClass: 'iradio_square-blue',
+	                increaseArea: '20%' // optional
+	            });
+
+	            $('#toggle-login-password').on('click keydown', function (event) {
+	                if (event.type === 'keydown' && event.key !== 'Enter' && event.key !== ' ') {
+	                    return;
+	                }
+	                event.preventDefault();
+
+	                var $button = $(this);
+	                var $password = $('#login-password');
+	                var isHidden = $password.attr('type') === 'password';
+
+	                $password.attr('type', isHidden ? 'text' : 'password');
+	                $button.attr('aria-pressed', isHidden ? 'true' : 'false');
+	                $button.attr('aria-label', isHidden ? 'Sembunyikan password' : 'Tampilkan password');
+	                $button.find('i').toggleClass('fa-eye fa-eye-slash');
+	            });
+	        });
+	    </script>
+	</body>
 
 </html>
