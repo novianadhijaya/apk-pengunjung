@@ -348,6 +348,15 @@
                                 </tfoot>
                             </table>
 
+                            <h4>Langkah 3A: Menghitung SSE (Sum of Squared Error)</h4>
+                            <p>SSE adalah jumlah kuadrat error dari tabel sebelumnya.</p>
+                            <div class="well" style="margin-bottom: 10px;">
+                                <strong>Rumus:</strong> <code>SSE = &Sigma;e&sup2;</code><br>
+                                SSE = <?php echo number_format($total_sq_error, 6); ?><br>
+                                <span class="text-muted small">Sama dengan SSE di tabel hasil pengujian:
+                                    <?php echo number_format($eval['SSE'], 6); ?></span>
+                            </div>
+
                             <br>
                             <hr>
 

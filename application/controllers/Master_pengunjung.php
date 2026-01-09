@@ -8,7 +8,7 @@ class Master_pengunjung extends CI_Controller
     function __construct()
     {
         parent::__construct();
-        // is_login(); // Uncomment if login is required
+        is_login(); // Uncomment if login is required
         $this->load->model('Master_pengunjung_model');
         $this->load->library('form_validation');
         $this->load->library('pagination');
