@@ -272,7 +272,7 @@
                                             <td><?php echo round($eval['MAPE'], 2); ?>% (<?php echo $eval['cat_mape']; ?>)</td>
                                         </tr>
                                         <tr>
-                                            <th>SD(Y) Populasi</th>
+                                            <th>SD(Y) Sample</th>
                                             <td><?php echo round($eval['sd_pop'], 6); ?></td>
                                         </tr>
                                         <tr>
