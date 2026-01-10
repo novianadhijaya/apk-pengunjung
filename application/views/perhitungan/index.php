@@ -320,7 +320,7 @@
                                         <li>MSE = &Sigma;e<sup>2</sup> / n = <?php echo round($sse, 6); ?> / <?php echo $fit['n']; ?> = <?php echo round($eval['MSE'], 6); ?></li>
                                         <li>RMSE = sqrt(MSE) = sqrt(<?php echo round($eval['MSE'], 6); ?>) = <?php echo round($eval['RMSE'], 6); ?></li>
                                         <li>MAPE = (1 / k) &Sigma;(|e| / Y) &times; 100%. Dengan k = <?php echo $nonZeroCount; ?> dan &Sigma;(|e|/Y) = <?php echo round($mape_num, 6); ?>, hasilnya <?php echo round($eval['MAPE'], 2); ?>% (<?php echo $eval['cat_mape']; ?>).</li>
-                                        <li>SD(Y) Populasi = sqrt(SST / n) = sqrt(<?php echo round($sst, 6); ?> / <?php echo $fit['n']; ?>) = <?php echo round($eval['sd_pop'], 6); ?></li>
+                                        <li>SD(Y) Sample = sqrt(SST / n) = sqrt(<?php echo round($sst, 6); ?> / <?php echo $fit['n']; ?>) = <?php echo round($eval['sd_pop'], 6); ?></li>
                                     </ul>
                                 </div>
                             </div>
